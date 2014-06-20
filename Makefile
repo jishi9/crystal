@@ -4,101 +4,146 @@
 # Delete target file in case of error, if it was indeed modified
 .DELETE_ON_ERROR:
 
-# Compiler flags
-INTELFLAGS=-vec-report0  -xHost -static-intel -ipo -inline-level=2 -no-inline-factor
+
+
+## Source directories
+CORECOMP = core-computation
+STRUCTUREDETECT = structure-detection
+PROTODEFDIR = proto-def
+DATDIR = dat
+ZIP_SRC_PATH = third-party/zip
+PROTO_SRC_PATH = third-party/protobuf-2.5.0
+
+## Generated directories
+BINDIR = bin
+MESHDIR = meshes
+PROTOGENDIR = obj/proto-gen
+PROTO_LIB_PATH = obj/protobuf
+ZIP_LIB_PATH = obj/zip
+
+
+
+## Enable automatic package flags
+# **NOTE**
+#   To use your system-wide  installation of protocol buffers, simply deleting
+#   the assignment to PKG_CONFIG_PATH would likely work.
+#
+#   If you have a custom installation location, set PKG_LIB_PATH.
+#
+#   ALSO make sure to update LD_LIBRARY_PATH (in .env) accordingly
+export PKG_CONFIG_PATH = ${PROTO_LIB_PATH}/lib/pkgconfig/
+
+
+
+## Compiler flags
+INTELFLAGS=-vec-report0 -xHost -static-intel -ipo -inline-level=2 -no-inline-factor
 
 CC = icc
 CFLAGS = -Wall -O3 ${INTELFLAGS}
 
 CXX = icpc
-CXXFLAGS = -std=c++11 -Wall `pkg-config --cflags protobuf` -O3 ${INTELFLAGS} ${FLAGS}
+CXXFLAGS = -std=c++11 -Wall -Ithird-party -Iobj `pkg-config --cflags protobuf` -O3 ${INTELFLAGS} ${FLAGS}
 
 LFLAGS = `pkg-config --libs-only-L protobuf`
 LIBS = `pkg-config --libs-only-l protobuf` -lz
 
 
-PROTODIR = gen
-BINDIR = bin
-DATDIR = dat
-MESHDIR = meshes
+
+## Zip library
+$(ZIP_LIB_PATH)/unzip.o: $(ZIP_SRC_PATH)/unzip.c | $(ZIP_LIB_PATH)
+	cd $(ZIP_SRC_PATH) && $(CC) -o ${CURDIR}/$@ -c unzip.c -lz $(CFLAGS)
+
+$(ZIP_LIB_PATH)/zip.o: $(ZIP_SRC_PATH)/zip.c | $(ZIP_LIB_PATH)
+	cd $(ZIP_SRC_PATH) && $(CC) -o ${CURDIR}/$@ -c zip.c -lz $(CFLAGS)
+
+
+
+## Protocol buffers library
+$(PROTO_LIB_PATH)/bin/protoc/protoc $(PROTO_LIB_PATH)/lib $(PROTO_LIB_PATH)/include:
+	mkdir -p $@
+	cd "${PROTO_SRC_PATH}" && ./configure --prefix="${CURDIR}/${PROTO_LIB_PATH}"
+	$(MAKE) -C ${PROTO_SRC_PATH}
+	$(MAKE) -C ${PROTO_SRC_PATH} check
+	$(MAKE) -C ${PROTO_SRC_PATH} install
 
 
 ## run-builder
 .PHONY: run-builder
 run-builder: $(BINDIR)/run-builder
 
-$(BINDIR)/run-builder: run-builder.cc mesh-builder.cc zip/izipfile.cpp zip/ozipfile.cpp zip/zip.o zip/unzip.o $(PROTODIR)/mesh.pb.cc mesh.h utils.h $(PROTODIR)/mesh.pb.h | $(BINDIR)
-	$(CXX) -o $@ $< mesh-builder.cc $(PROTODIR)/mesh.pb.cc zip/izipfile.cpp zip/ozipfile.cpp zip/zip.o zip/unzip.o $(CXXFLAGS) $(LFLAGS) $(LIBS)
+$(BINDIR)/run-builder: ${CORECOMP}/run-builder.cc ${CORECOMP}/mesh-builder.cc $(ZIP_SRC_PATH)/izipfile.cpp $(ZIP_SRC_PATH)/ozipfile.cpp $(ZIP_LIB_PATH)/zip.o $(ZIP_LIB_PATH)/unzip.o $(PROTOGENDIR)/mesh.pb.cc ${CORECOMP}/mesh.h ${CORECOMP}/utils.h $(PROTOGENDIR)/mesh.pb.h | $(BINDIR)
+	$(CXX) -o $@ $< ${CORECOMP}/mesh-builder.cc $(PROTOGENDIR)/mesh.pb.cc $(ZIP_SRC_PATH)/izipfile.cpp $(ZIP_SRC_PATH)/ozipfile.cpp $(ZIP_LIB_PATH)/zip.o $(ZIP_LIB_PATH)/unzip.o $(CXXFLAGS) $(LFLAGS) $(LIBS)
 
 
 ## Mesh-printer
 .PHONY: mesh-printer
 mesh-printer: $(BINDIR)/mesh-printer
 
-$(BINDIR)/mesh-printer: mesh-printer.cc $(PROTODIR)/mesh.pb.cc zip/izipfile.cpp zip/ozipfile.cpp zip/zip.o zip/unzip.o mesh.h utils.h | $(BINDIR)
-	$(CXX) -o $@ $< $(PROTODIR)/mesh.pb.cc zip/izipfile.cpp zip/ozipfile.cpp zip/zip.o zip/unzip.o $(CXXFLAGS) $(LFLAGS) $(LIBS)
+$(BINDIR)/mesh-printer: ${CORECOMP}/mesh-printer.cc $(PROTOGENDIR)/mesh.pb.cc $(ZIP_SRC_PATH)/izipfile.cpp $(ZIP_SRC_PATH)/ozipfile.cpp $(ZIP_LIB_PATH)/zip.o $(ZIP_LIB_PATH)/unzip.o ${CORECOMP}/mesh.h ${CORECOMP}/utils.h | $(BINDIR)
+	$(CXX) -o $@ $< $(PROTOGENDIR)/mesh.pb.cc $(ZIP_SRC_PATH)/izipfile.cpp $(ZIP_SRC_PATH)/ozipfile.cpp $(ZIP_LIB_PATH)/zip.o $(ZIP_LIB_PATH)/unzip.o $(CXXFLAGS) $(LFLAGS) $(LIBS)
 
 
 ## Cell computation runner
 .PHONY run-cell-computation:
 run-cell-computation: $(BINDIR)/run-cell-computation
 
-$(BINDIR)/run-cell-computation: run-cell-computation.cc mesh-builder.cc $(PROTODIR)/mesh.pb.cc zip/izipfile.cpp zip/ozipfile.cpp zip/zip.o zip/unzip.o mesh.h utils.h cell-computation.h | $(BINDIR)
-	$(CXX) -o $@ $< mesh-builder.cc $(PROTODIR)/mesh.pb.cc zip/izipfile.cpp zip/ozipfile.cpp zip/zip.o zip/unzip.o $(CXXFLAGS) $(LFLAGS) $(LIBS)
+$(BINDIR)/run-cell-computation: ${CORECOMP}/run-cell-computation.cc ${CORECOMP}/mesh-builder.cc $(PROTOGENDIR)/mesh.pb.cc $(ZIP_SRC_PATH)/izipfile.cpp $(ZIP_SRC_PATH)/ozipfile.cpp $(ZIP_LIB_PATH)/zip.o $(ZIP_LIB_PATH)/unzip.o ${CORECOMP}/mesh.h ${CORECOMP}/utils.h ${CORECOMP}/cell-computation.h | $(BINDIR)
+	$(CXX) -o $@ $< ${CORECOMP}/mesh-builder.cc $(PROTOGENDIR)/mesh.pb.cc $(ZIP_SRC_PATH)/izipfile.cpp $(ZIP_SRC_PATH)/ozipfile.cpp $(ZIP_LIB_PATH)/zip.o $(ZIP_LIB_PATH)/unzip.o $(CXXFLAGS) $(LFLAGS) $(LIBS)
 
 
 ## Edge computation runner
 .PHONY run-edge-computation:
 run-edge-computation: $(BINDIR)/run-edge-computation
 
-$(BINDIR)/run-edge-computation: run-edge-computation.cc mesh-builder.cc $(PROTODIR)/mesh.pb.cc zip/izipfile.cpp zip/ozipfile.cpp zip/zip.o zip/unzip.o mesh.h utils.h edge-computation.h | $(BINDIR)
-	$(CXX) -o $@ $< mesh-builder.cc $(PROTODIR)/mesh.pb.cc zip/izipfile.cpp zip/ozipfile.cpp zip/zip.o zip/unzip.o $(CXXFLAGS) $(LFLAGS) $(LIBS)
+$(BINDIR)/run-edge-computation: ${CORECOMP}/run-edge-computation.cc ${CORECOMP}/mesh-builder.cc $(PROTOGENDIR)/mesh.pb.cc $(ZIP_SRC_PATH)/izipfile.cpp $(ZIP_SRC_PATH)/ozipfile.cpp $(ZIP_LIB_PATH)/zip.o $(ZIP_LIB_PATH)/unzip.o ${CORECOMP}/mesh.h ${CORECOMP}/utils.h ${CORECOMP}/edge-computation.h | $(BINDIR)
+	$(CXX) -o $@ $< ${CORECOMP}/mesh-builder.cc $(PROTOGENDIR)/mesh.pb.cc $(ZIP_SRC_PATH)/izipfile.cpp $(ZIP_SRC_PATH)/ozipfile.cpp $(ZIP_LIB_PATH)/zip.o $(ZIP_LIB_PATH)/unzip.o $(CXXFLAGS) $(LFLAGS) $(LIBS)
 
 
 ## Airfoil computation runner
 .PHONY run-airfoil-computation:
 run-airfoil-computation: $(BINDIR)/run-airfoil-computation
 
-$(BINDIR)/run-airfoil-computation: run-airfoil-computation.cc mesh-builder.cc $(PROTODIR)/mesh.pb.cc zip/izipfile.cpp zip/ozipfile.cpp zip/zip.o zip/unzip.o mesh.h utils.h cell-computation.h edge-computation.h airfoil.h | $(BINDIR)
-	$(CXX) -o $@ $< mesh-builder.cc $(PROTODIR)/mesh.pb.cc zip/izipfile.cpp zip/ozipfile.cpp zip/zip.o zip/unzip.o $(CXXFLAGS) $(LFLAGS) $(LIBS)
+$(BINDIR)/run-airfoil-computation: ${CORECOMP}/run-airfoil-computation.cc ${CORECOMP}/mesh-builder.cc $(PROTOGENDIR)/mesh.pb.cc $(ZIP_SRC_PATH)/izipfile.cpp $(ZIP_SRC_PATH)/ozipfile.cpp $(ZIP_LIB_PATH)/zip.o $(ZIP_LIB_PATH)/unzip.o ${CORECOMP}/mesh.h ${CORECOMP}/utils.h ${CORECOMP}/cell-computation.h ${CORECOMP}/edge-computation.h ${CORECOMP}/airfoil.h | $(BINDIR)
+	$(CXX) -o $@ $< ${CORECOMP}/mesh-builder.cc $(PROTOGENDIR)/mesh.pb.cc $(ZIP_SRC_PATH)/izipfile.cpp $(ZIP_SRC_PATH)/ozipfile.cpp $(ZIP_LIB_PATH)/zip.o $(ZIP_LIB_PATH)/unzip.o $(CXXFLAGS) $(LFLAGS) $(LIBS)
 
 
 ## Proto files
-$(PROTODIR)/%.pb.h $(PROTODIR)/%.pb.cc $(PROTODIR)/%_pb2.py: %.proto | $(PROTODIR)
-	protoc $< --cpp_out $(PROTODIR) --python_out $(PROTODIR)
-
-## Zip library
-zip/unzip.o: zip/unzip.c
-	cd zip && $(CC) -o unzip.o -c unzip.c -lz $(CFLAGS)
-
-zip/zip.o: zip/zip.c
-	cd zip && $(CC) -o zip.o -c zip.c -lz $(CFLAGS)
+$(PROTOGENDIR)/%.pb.h $(PROTOGENDIR)/%.pb.cc $(PROTOGENDIR)/%_pb2.py: $(PROTODEFDIR)/%.proto | $(PROTO_LIB_PATH)/bin/protoc/protoc $(PROTO_LIB_PATH)/lib $(PROTO_LIB_PATH)/include $(PROTOGENDIR)
+	cd $(PROTODEFDIR) && $(CURDIR)/$(PROTO_LIB_PATH)/bin/protoc/protoc $*.proto --cpp_out $(CURDIR)/$(PROTOGENDIR) --python_out $(CURDIR)/$(PROTOGENDIR)
 
 
 ## Directories
 $(BINDIR):
 	mkdir $(BINDIR)
-$(PROTODIR):
-	mkdir $(PROTODIR)
+$(PROTOGENDIR):
+	mkdir $(PROTOGENDIR)
 $(DATDIR):
 	mkdir $(DATDIR)
 $(MESHDIR):
 	mkdir $(MESHDIR)
+$(ZIP_LIB_PATH):
+	mkdir $(ZIP_LIB_PATH)
 
 
 ## Clean
 .PHONY: clean
 clean:
-	$(RM) -r $(BINDIR)
-	$(RM) gen/mesh.pb.h gen/mesh.pb.cc mesh_pb2.py zip/zip.o zip/unzip.o
+	$(RM) -r $(BINDIR) $(PROTOGENDIR)
+
+
+.PHONY: cleanlibs
+cleanlibs:
+	$(RM) -r $(PROTO_LIB_PATH) $(ZIP_LIB_PATH)
+	ls $(PROTO_SRC_PATH)
+	if [ -f $(PROTO_SRC_PATH)/Makefile ] ; then $(MAKE) -C $(PROTO_SRC_PATH) distclean ; fi
 
 
 ## Meshes
 detect_and_append_structure.py: mesh-printer
 
 # Detect structure
-%.p: %.p.part detect_and_append_structure.py
-	./detect_and_append_structure.py $(PY_DETECT_FLAGS) $< $@
+%.p: %.p.part $(STRUCTUREDETECT)/detect_and_append_structure.py
+	$(STRUCTUREDETECT)/detect_and_append_structure.py $(PY_DETECT_FLAGS) $< $@
 
 # Special flags
 $(MESHDIR)/airfoil.p: PY_DETECT_FLAGS = --random_seed 123467

@@ -15,7 +15,7 @@
 #include "zip/ozipfile.h"
 #include "zip/zipstream.h"
 
-#include "gen/mesh.pb.h"
+#include "proto-gen/mesh.pb.h"
 #include "mesh.h"
 
 

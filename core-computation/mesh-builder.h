@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "mesh.h"
-#include "gen/mesh.pb.h"
+#include "proto-gen/mesh.pb.h"
 #include "utils.h"
 
 
