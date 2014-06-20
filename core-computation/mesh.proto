@@ -1,0 +1,76 @@
+message PData {
+    optional int32 data = 1;
+}
+
+message PCoordinate {
+    required double x = 1;
+    required double y = 2;
+}
+
+message PBound {
+    required int32 bound = 1;
+}
+
+
+message PStructured2DGrid {
+    required int32 num_rows = 1;
+    required int32 num_cols = 2;
+    repeated int32 indices = 3;
+}
+
+
+// List of neighbours
+message PNeighbours {
+    repeated int32 element_id = 1;
+}
+
+
+message PMesh {
+    // Number of nodes in the mesh
+    required int32 num_nodes = 1;
+
+    // Node id -> PCoordinate
+    repeated PCoordinate node2coordinate = 2;
+
+    // Node id -> PData
+    repeated PData node2data = 3;
+
+    // Node id -> [Node id]
+    repeated PNeighbours node2node_map = 4;
+
+    // Structured regions discovered in this mesh
+    repeated PStructured2DGrid structured_region = 5;
+}
+
+
+message PStructuredNodeRegion {
+    required int32 region_number = 1;
+    required int32 num_rows = 2;
+    required int32 num_cols = 3;
+}
+
+message PStructuredCellRegion {
+    required int32 cell2node_offset = 1;
+    required int32 node_row_start = 2;
+    required int32 node_row_finish = 3;
+    required int32 node_col_start = 4;
+    required int32 node_col_finish = 5;
+    repeated int32 compass = 6;
+}
+
+
+message PUnstructuredCellRegion {
+    required int32 num_unstructured_cells = 1;
+    required int32 unstructured_cells_offset = 2;
+}
+
+
+message PStructuredEdgeRegion {
+    required int32 inedge2node_offset = 1;
+    required int32 node_row_start = 2;
+    required int32 node_row_finish = 3;
+    required int32 node_col_start = 4;
+    required int32 node_col_finish = 5;
+    repeated int32 node_compass = 6;
+    repeated int32 cell_compass = 7;
+}

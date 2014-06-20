@@ -1,0 +1,7 @@
+#!/bin/bash
+
+icpc -ipo -xHost -Wall data-structures.cc -std=c++11  -o data-structures
+
+
+# Mesh builder
+#icpc -std=c++11 -pthread -I/usr/local/include -pthread -L/usr/local/lib -lprotobuf -lpthread  mesh-builder.cc mesh.pb.cc -o mesh-builder
