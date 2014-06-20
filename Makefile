@@ -59,8 +59,8 @@ $(ZIP_LIB_PATH)/zip.o: $(ZIP_SRC_PATH)/zip.c | $(ZIP_LIB_PATH)
 
 
 ## Protocol buffers library
-$(PROTO_LIB_PATH)/bin/protoc/protoc $(PROTO_LIB_PATH)/lib $(PROTO_LIB_PATH)/include:
-	mkdir -p $@
+$(PROTO_LIB_PATH)/bin/protoc $(PROTO_LIB_PATH)/lib $(PROTO_LIB_PATH)/include:
+	mkdir -p $(PROTO_LIB_PATH)
 	cd "${PROTO_SRC_PATH}" && ./configure --prefix="${CURDIR}/${PROTO_LIB_PATH}"
 	$(MAKE) -C ${PROTO_SRC_PATH}
 	$(MAKE) -C ${PROTO_SRC_PATH} check
@@ -108,8 +108,8 @@ $(BINDIR)/run-airfoil-computation: ${CORECOMP}/run-airfoil-computation.cc ${CORE
 
 
 ## Proto files
-$(PROTOGENDIR)/%.pb.h $(PROTOGENDIR)/%.pb.cc $(PROTOGENDIR)/%_pb2.py: $(PROTODEFDIR)/%.proto | $(PROTO_LIB_PATH)/bin/protoc/protoc $(PROTO_LIB_PATH)/lib $(PROTO_LIB_PATH)/include $(PROTOGENDIR)
-	cd $(PROTODEFDIR) && $(CURDIR)/$(PROTO_LIB_PATH)/bin/protoc/protoc $*.proto --cpp_out $(CURDIR)/$(PROTOGENDIR) --python_out $(CURDIR)/$(PROTOGENDIR)
+$(PROTOGENDIR)/%.pb.h $(PROTOGENDIR)/%.pb.cc $(PROTOGENDIR)/%_pb2.py: $(PROTODEFDIR)/%.proto | $(PROTO_LIB_PATH)/bin/protoc $(PROTO_LIB_PATH)/lib $(PROTO_LIB_PATH)/include $(PROTOGENDIR)
+	cd $(PROTODEFDIR) && $(CURDIR)/$(PROTO_LIB_PATH)/bin/protoc $*.proto --cpp_out $(CURDIR)/$(PROTOGENDIR) --python_out $(CURDIR)/$(PROTOGENDIR)
 
 
 ## Directories
