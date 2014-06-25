@@ -3,7 +3,7 @@
 #include <iterator>
 #include <vector>
 
-#include "proto-gen/mesh.pb.h"
+#include "protogen/mesh.pb.h"
 #include "mesh-builder.h"
 #include "mesh.h"
 #include "utils.h"

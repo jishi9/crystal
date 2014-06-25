@@ -1,5 +1,5 @@
 from mesh_writer import MeshWriter
-from gen.mesh_pb2 import PStructuredCellRegion, PUnstructuredCellRegion, PStructuredNodeRegion, PStructuredEdgeRegion, PNeighbours, PCoordinate
+from protogen.mesh_pb2 import PStructuredCellRegion, PUnstructuredCellRegion, PStructuredNodeRegion, PStructuredEdgeRegion, PNeighbours, PCoordinate
 
 
 def write_map(mesh_writer, section_name, elem_to_neighbours):

@@ -17,7 +17,7 @@ PROTO_SRC_PATH = third-party/protobuf-2.5.0
 ## Generated directories
 BINDIR = bin
 MESHDIR = meshes
-PROTOGENDIR = obj/proto-gen
+PROTOGENDIR = obj/protogen
 PROTO_LIB_PATH = obj/protobuf
 ZIP_LIB_PATH = obj/zip
 
@@ -110,6 +110,7 @@ $(BINDIR)/run-airfoil-computation: ${CORECOMP}/run-airfoil-computation.cc ${CORE
 ## Proto files
 $(PROTOGENDIR)/%.pb.h $(PROTOGENDIR)/%.pb.cc $(PROTOGENDIR)/%_pb2.py: $(PROTODEFDIR)/%.proto | $(PROTO_LIB_PATH)/bin/protoc $(PROTO_LIB_PATH)/lib $(PROTO_LIB_PATH)/include $(PROTOGENDIR)
 	cd $(PROTODEFDIR) && $(CURDIR)/$(PROTO_LIB_PATH)/bin/protoc $*.proto --cpp_out $(CURDIR)/$(PROTOGENDIR) --python_out $(CURDIR)/$(PROTOGENDIR)
+	echo "# This file allows importing python modules from the directory it is in." > $(PROTOGENDIR)/__init__.py
 
 
 ## Directories
