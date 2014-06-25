@@ -21,6 +21,17 @@ PROTOGENDIR = obj/protogen
 PROTO_LIB_PATH = obj/protobuf
 ZIP_LIB_PATH = obj/zip
 
+## Create directories
+$(BINDIR):
+	mkdir -p $(BINDIR)
+$(PROTOGENDIR):
+	mkdir -p $(PROTOGENDIR)
+$(DATDIR):
+	mkdir -p $(DATDIR)
+$(MESHDIR):
+	mkdir -p $(MESHDIR)
+$(ZIP_LIB_PATH):
+	mkdir -p $(ZIP_LIB_PATH)
 
 
 ## Enable automatic package flags
@@ -112,18 +123,6 @@ $(PROTOGENDIR)/%.pb.h $(PROTOGENDIR)/%.pb.cc $(PROTOGENDIR)/%_pb2.py: $(PROTODEF
 	cd $(PROTODEFDIR) && $(CURDIR)/$(PROTO_LIB_PATH)/bin/protoc $*.proto --cpp_out $(CURDIR)/$(PROTOGENDIR) --python_out $(CURDIR)/$(PROTOGENDIR)
 	echo "# This file allows importing python modules from the directory it is in." > $(PROTOGENDIR)/__init__.py
 
-
-## Directories
-$(BINDIR):
-	mkdir $(BINDIR)
-$(PROTOGENDIR):
-	mkdir $(PROTOGENDIR)
-$(DATDIR):
-	mkdir $(DATDIR)
-$(MESHDIR):
-	mkdir $(MESHDIR)
-$(ZIP_LIB_PATH):
-	mkdir $(ZIP_LIB_PATH)
 
 
 ## Clean
