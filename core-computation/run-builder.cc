@@ -4,9 +4,10 @@
 
 int main(int argc, const char* argv[]) {
   const char* usage = "USAGE:\n"
-    "    bin/run-builder build [35|big] [filename]\n"
-    "    bin/run-builder [build-from|build-from-msh] [in_filename] [out_filename]\n"
-    "    bin/run-builder [test|testquad] [filename]\n";
+    "    bin/run-builder [build-from|build-from-msh] [in_filename] [out_filename]\n";
+// Obsolete options
+//    "    bin/run-builder [test|testquad] [filename]\n"
+//    "    bin/run-builder build [35|big] [filename]\n"
   check(argc >= 3, usage);
 
   // Read mesh

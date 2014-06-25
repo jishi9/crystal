@@ -28,13 +28,8 @@ void write_quad_data(const C& data, const char* filename) {
 int main(int argc, const char* argv[]) {
   // Check arguments
   const char* usage = "USAGE:\n"
-    "    bin/run-airfoil-computation [filename] [--structured]\n";
-  check(argc == 2 || argc == 3, usage);
-  if (argc == 3) {
-    check(match("--structured", argv[2]), "Unknown flag");
-  }
-  const bool structured_flag = argc == 3;
-
+    "    bin/run-airfoil-computation [filename]\n";
+  check(argc == 2, usage);
 
   // Get mesh filename
   const char* filename = argv[1];

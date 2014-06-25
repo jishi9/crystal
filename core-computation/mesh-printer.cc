@@ -253,7 +253,7 @@ static void printQuadMeshStructureMetadata(const char* filename, const bool node
 
 
 void usage() {
-  cerr << "USAGE: ./mesh-printer [structure|<map_name>] [filename]" << endl;
+  cerr << "USAGE: ./mesh-printer [structure|nodestructure|header|<map_name>] [filename]" << endl << endl;
 }
 
 int main(int argc, char const *argv[]) {
