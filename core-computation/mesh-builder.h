@@ -17,7 +17,7 @@ void buildBigMesh(const char* filename);
 
 // In file: *.dat (like new_grid.dat)
 // Out file: *.p.part file
-void buildQuadMeshPart(const char* in_filename, const char* out_filename);
+void buildQuadMeshPartFromDatFile(const char* in_filename, const char* out_filename);
 
 
 // Read a quad mesh (*.p file)

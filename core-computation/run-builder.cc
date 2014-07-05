@@ -4,7 +4,7 @@
 
 int main(int argc, const char* argv[]) {
   const char* usage = "USAGE:\n"
-    "    bin/run-builder [build-from|build-from-msh] [in_filename] [out_filename]\n";
+    "    bin/run-builder [build-from-dat|build-from-msh] [in_filename] [out_filename]\n";
 // Obsolete options
 //    "    bin/run-builder [test|testquad] [filename]\n"
 //    "    bin/run-builder build [35|big] [filename]\n"
@@ -41,13 +41,13 @@ int main(int argc, const char* argv[]) {
   }
 
   // Build quad mesh from dat file
-  else if (match("build-from", argv[1])) {
+  else if (match("build-from-dat", argv[1])) {
     check(argc == 4, usage);
 
     const char* in_filename = argv[2];
     const char* out_filename = argv[3];
 
-    buildQuadMeshPart(in_filename, out_filename);
+    buildQuadMeshPartFromDatFile(in_filename, out_filename);
   }
 
   // Build quad mesh from msh file

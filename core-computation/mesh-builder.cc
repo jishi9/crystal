@@ -172,7 +172,7 @@ static void writeBounds(MeshOutputStream* out, const C& bounds) {
 
 // In file: *.dat (like new_grid.dat)
 // Out file: *.p.part file
-void buildQuadMeshPart(const char* in_filename, const char* out_filename) {
+void buildQuadMeshPartFromDatFile(const char* in_filename, const char* out_filename) {
   ifstream in(in_filename);
   check(in, "Cannot open file");
 
